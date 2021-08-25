@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# hacky script to automate sideloading a local build of the DSR into the local Maven repo
+
+function sideload_m2() {
+  cp ${1} ${2}
+  sha1sum ${2} > ${2}.sha1
+}
+
+# the local sbt build output
+SRC=~/standalone/target/scala-2.12
+
+# this must be a non-SNAPSHOT version to prevent Maven from checking the remote repo
+HACKVER=0.2.1
+
+# our .m2 local repo
+DEST=~/.m2/repository/io/delta/delta-standalone_2.12/${HACKVER}
+
+[[ -s "${DEST}" ]] && rm -fr "${DEST}"
+mkdir -p ${DEST}
+ 
+sideload_m2 \
+	${SRC}/delta-standalone_2.12-0.2.1-sources.jar \
+	${DEST}/delta-standalone_2.12-0.2.1-sources.jar
+
+sideload_m2 \
+	${SRC}/delta-standalone_2.12-0.2.1.jar \
+	${DEST}/delta-standalone_2.12-0.2.1.jar
+
+sideload_m2 \
+	${SRC}/delta-standalone_2.12-0.2.1.pom \
+	${DEST}/delta-standalone_2.12-0.2.1.pom
+
+echo ${SRC}
+ls -l ${SRC}
+
+echo ${DEST}
+ls -l ${DEST}
+
